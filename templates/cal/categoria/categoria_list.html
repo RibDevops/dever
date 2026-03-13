@@ -1,0 +1,306 @@
+<!-- templates/cal/categoria/categoria_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}Categorias Profissionais{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-briefcase-medical me-2"></i>Categorias Profissionais
+        </h1>
+        <div>
+            <a href="{% url 'cal:categoria_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> Nova Categoria
+            </a>
+        </div>
+    </div>
+
+    <!-- Card de Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">Total</h5>
+                    <p class="card-text display-6">{{ total_categorias }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input type="text" 
+                               class="form-control" 
+                               name="q" 
+                               value="{{ query }}"
+                               placeholder="Buscar por nome ou descrição...">
+                        <button class="btn btn-outline-primary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        {% if query %}
+                        <a href="{% url 'cal:categoria_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabela de Categorias -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Profissionais</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for categoria in page_obj %}
+                        <tr>
+                            <td>{{ categoria.id }}</td>
+                            <td>
+                                <strong>{{ categoria.nome }}</strong>
+                            </td>
+                            <td>
+                                {% if categoria.descricao %}
+                                    {{ categoria.descricao|truncatechars:100 }}
+                                {% else %}
+                                    <span class="text-muted">Sem descrição</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">
+                                    {{ categoria.enfermeiro_set.count }} profissional(es)
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" 
+                                            class="btn btn-outline-info"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#detailModal{{ categoria.id }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <a href="{% url 'cal:categoria_update' categoria.id %}" 
+                                       class="btn btn-outline-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-outline-danger"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deleteModal{{ categoria.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Modal de Detalhes -->
+                        <div class="modal fade" id="detailModal{{ categoria.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-info text-white">
+                                        <h5 class="modal-title">
+                                            <i class="fas fa-briefcase-medical me-2"></i>
+                                            {{ categoria.nome }}
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" 
+                                                data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h6>Descrição:</h6>
+                                                <p class="bg-light p-3 rounded">
+                                                    {% if categoria.descricao %}
+                                                        {{ categoria.descricao|linebreaks }}
+                                                    {% else %}
+                                                        <span class="text-muted">Sem descrição cadastrada.</span>
+                                                    {% endif %}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <hr>
+
+                                        <h6>Profissionais Vinculados:</h6>
+                                        {% with profissionais=categoria.enfermeiro_set.all %}
+                                        {% if profissionais %}
+                                        <div class="list-group">
+                                            {% for prof in profissionais|slice:":5" %}
+                                            <div class="list-group-item">
+                                                <i class="fas fa-user-nurse me-2"></i>
+                                                {{ prof.nome_completo }}
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% if profissionais.count > 5 %}
+                                        <div class="alert alert-info mt-2">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            + {{ profissionais.count|add:"-5" }} profissional(es)
+                                        </div>
+                                        {% endif %}
+                                        {% else %}
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            Nenhum profissional vinculado a esta categoria.
+                                        </div>
+                                        {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="{% url 'cal:categoria_update' categoria.id %}" 
+                                           class="btn btn-warning">
+                                            <i class="fas fa-edit me-1"></i> Editar
+                                        </a>
+                                        <button type="button" class="btn btn-secondary" 
+                                                data-bs-dismiss="modal">
+                                            Fechar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal de Confirmação de Exclusão -->
+                        <div class="modal fade" id="deleteModal{{ categoria.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-danger text-white">
+                                        <h5 class="modal-title">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            Confirmar Exclusão
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" 
+                                                data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="alert alert-danger">
+                                            <strong>Atenção!</strong> Esta ação não pode ser desfeita.
+                                        </div>
+                                        <p>Tem certeza que deseja excluir a categoria:</p>
+                                        <div class="alert alert-light">
+                                            <h5 class="mb-0">{{ categoria.nome }}</h5>
+                                        </div>
+
+                                        {% with profissionais=categoria.enfermeiro_set.count %}
+                                        {% if profissionais > 0 %}
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            Esta categoria possui <strong>{{ profissionais }}</strong> 
+                                            profissional(es) vinculado(s). 
+                                            A exclusão só será possível após remover todos os vínculos.
+                                        </div>
+                                        {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form method="post" 
+                                              action="{% url 'cal:categoria_delete' categoria.id %}">
+                                            {% csrf_token %}
+                                            <button type="button" class="btn btn-secondary" 
+                                                    data-bs-dismiss="modal">
+                                                Cancelar
+                                            </button>
+                                            <button type="submit" 
+                                                    class="btn btn-danger"
+                                                    {% if categoria.enfermeiro_set.count > 0 %}disabled{% endif %}>
+                                                <i class="fas fa-trash me-1"></i> Confirmar Exclusão
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Paginação">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-briefcase-medical fa-4x text-muted mb-3"></i>
+                <h4>Nenhuma categoria encontrada</h4>
+                <p class="text-muted">
+                    {% if query %}
+                        Não foram encontradas categorias para "{{ query }}"
+                    {% else %}
+                        Comece criando uma nova categoria profissional.
+                    {% endif %}
+                </p>
+                <a href="{% url 'cal:categoria_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Criar Primeira Categoria
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Função para busca em tempo real
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('input[name="q"]');
+    const searchForm = document.querySelector('form');
+    let searchTimeout;
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            searchForm.submit();
+        }, 500);
+    });
+});
+</script>
+{% endblock %}

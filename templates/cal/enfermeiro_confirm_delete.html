@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h4>Confirmar exclusão</h4>
+  <p>Deseja remover <strong>{{ obj }}</strong>?</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <a href="{% url 'cal:enfermeiro_list' %}" class="btn btn-secondary">Cancelar</a>
+    <button type="submit" class="btn btn-danger">Excluir</button>
+  </form>
+</div>
+{% endblock %}

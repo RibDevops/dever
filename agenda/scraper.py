@@ -126,3 +126,4 @@ def extrair_eventos():
         browser.close()
 
     return dados
+

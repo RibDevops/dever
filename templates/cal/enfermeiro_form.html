@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+
+  <h4>Profissional</h4>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        {{ form.nome_guerra.label_tag }}
+        {{ form.nome_guerra }}
+      </div>
+      <div class="col-md-8 mb-3">
+        {{ form.nome_completo.label_tag }}
+        {{ form.nome_completo }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        {{ form.matricula.label_tag }}
+        {{ form.matricula }}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.coren.label_tag }}
+        {{ form.coren }}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.categoria.label_tag }}
+        {{ form.categoria }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        {{ form.carga_horaria.label_tag }}
+        {{ form.carga_horaria }}
+      </div>
+      <div class="col-md-4 mb-3 d-flex align-items-center">
+        {{ form.ativo }} Ativo
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <a href="{% url 'cal:enfermeiro_list' %}" class="btn btn-secondary">Voltar</a>
+      <button type="submit" class="btn btn-primary">Salvar</button>
+    </div>
+  </form>
+
+</div>
+{% endblock %}
+
+

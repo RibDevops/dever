@@ -1,0 +1,51 @@
+<!-- cal/relatorio_semanal.html -->
+<table class="table">
+  <thead>
+    <tr>
+      <th>Enfermeiro</th>
+      <th>CH Semanal</th>
+      <th>Horas Trabalhadas</th>
+      <th>Horas Extras</th>
+      <th>Percentual</th>
+      <th>Plantões</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in dados_semana %}
+    <tr>
+      <td>{{ item.enfermeiro.nome_guerra }}</td>
+      <td>{{ item.enfermeiro.carga_horaria_semanal }}h</td>
+      <td>{{ item.horas_trabalhadas }}h</td>
+      <td class="{% if item.horas_extras > 0 %}text-danger{% endif %}">
+        {{ item.horas_extras }}h
+      </td>
+      <td>
+        <div class="progress">
+          <div class="progress-bar 
+            {% if item.percentual > 100 %}bg-danger
+            {% elif item.percentual > 80 %}bg-warning
+            {% else %}bg-success{% endif %}" 
+            style="width: {{ item.percentual|floatformat:0 }}%">
+            {{ item.percentual|floatformat:1 }}%
+          </div>
+        </div>
+      </td>
+      <td>
+        {% for plantao in item.plantoes %}
+          <span class="badge bg-secondary">
+            {{ plantao.data|date:"d" }}: {{ plantao.turno.codigo }}
+          </span>
+        {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr class="table-dark">
+      <td colspan="2"><strong>TOTAL GERAL</strong></td>
+      <td><strong>{{ total_geral }}h</strong></td>
+      <td><strong>{{ extras_geral }}h</strong></td>
+      <td colspan="2"></td>
+    </tr>
+  </tfoot>
+</table>

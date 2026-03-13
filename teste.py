@@ -2,7 +2,6 @@ from playwright.sync_api import sync_playwright
 from datetime import datetime, timedelta
 import re
 
-
 def run():
 
     with sync_playwright() as p:

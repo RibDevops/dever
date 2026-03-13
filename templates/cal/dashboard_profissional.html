@@ -1,0 +1,28 @@
+<h3>{{ enfermeiro.nome_guerra }}</h3>
+
+<ul>
+  <li>Total de horas: {{ total_horas }}</li>
+  <li>Plantões noturnos: {{ total_noturnos }}</li>
+  <li>TPD: {{ total_tpd }}</li>
+</ul>
+
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th>Data</th>
+      <th>Turno</th>
+      <th>Horas</th>
+      <th>TPD</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in eventos %}
+    <tr>
+      <td>{{ e.data }}</td>
+      <td>{{ e.turno.codigo }}</td>
+      <td>{{ e.carga_horaria }}</td>
+      <td>{{ e.is_tpd|yesno:"Sim,Não" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

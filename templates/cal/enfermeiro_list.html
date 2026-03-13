@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+
+  <div class="d-flex justify-content-between">
+    <h4>Profissionais</h4>
+    <a href="{% url 'cal:enfermeiro_create' %}" class="btn btn-primary">Novo</a>
+  </div>
+
+  <table class="table table-striped mt-3">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Matrícula</th>
+        <th>Categoria</th>
+        <th>Carga</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in enfermeiros %}
+      <tr>
+        <td>{{ e.nome_guerra }}</td>
+        <td>{{ e.matricula }}</td>
+        <td>{{ e.categoria }}</td>
+        <td>{{ e.carga_horaria }}</td>
+        <td>
+          <a href="{% url 'cal:enfermeiro_update' e.id %}" class="btn btn-sm btn-warning">Editar</a>
+          <a href="{% url 'cal:enfermeiro_delete' e.id %}" class="btn btn-sm btn-danger">Excluir</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+<h2>Categorias Profissionais</h2>
+<a href="{% url 'categoria_create' %}">Nova Categoria</a>
+<ul>
+{% for cat in categorias %}
+    <li>
+        {{ cat.nome }} -
+        <a href="{% url 'categoria_update' cat.pk %}">Editar</a> |
+        <a href="{% url 'categoria_delete' cat.pk %}">Excluir</a>
+    </li>
+{% endfor %}
+</ul>

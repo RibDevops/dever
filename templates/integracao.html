@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WhatsApp Integration</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .qrcode { max-width: 300px; margin: 20px 0; }
+        button { padding: 10px 20px; cursor: pointer; }
+        input, textarea { width: 100%; padding: 8px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Integração WhatsApp</h1>
+        
+        <h2>Criar Nova Instância</h2>
+        <input type="text" id="instanceName" placeholder="Nome da instância">
+        <button onclick="criarInstancia()">Criar</button>
+        
+        <div id="qrcodeContainer" style="display:none;">
+            <h3>Escaneie o QR Code</h3>
+            <img id="qrcode" class="qrcode">
+        </div>
+        
+        <h2>Enviar Mensagem</h2>
+        <select id="instanceSelect"></select>
+        <input type="text" id="numero" placeholder="Número (formato: 5511999999999)">
+        <textarea id="mensagem" placeholder="Digite sua mensagem"></textarea>
+        <button onclick="enviarMensagem()">Enviar</button>
+        
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        const baseURL = 'http://localhost:8000/api/whatsapp/';
+        
+        async function criarInstancia() {
+            const nome = document.getElementById('instanceName').value;
+            if (!nome) return alert('Digite um nome');
+            
+            try {
+                const response = await axios.post(`${baseURL}instancias/criar/`, 
+                    { nome_instancia: nome }, {
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    });
+                
+                if (response.data.qr_code) {
+                    document.getElementById('qrcode').src = `data:image/png;base64,${response.data.qr_code}`;
+                    document.getElementById('qrcodeContainer').style.display = 'block';
+                }
+                
+                carregarInstancias();
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao criar instância');
+            }
+        }
+        
+        async function carregarInstancias() {
+            try {
+                const response = await axios.get(`${baseURL}instancias/`);
+                const select = document.getElementById('instanceSelect');
+                select.innerHTML = '';
+                
+                response.data.forEach(inst => {
+                    if (inst.status === 'connected') {
+                        const option = document.createElement('option');
+                        option.value = inst.id;
+                        option.text = `${inst.nome_instancia} - ${inst.numero_telefone || 'Aguardando'}`;
+                        select.appendChild(option);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar instâncias');
+            }
+        }
+        
+        async function enviarMensagem() {
+            const data = {
+                instance_id: document.getElementById('instanceSelect').value,
+                numero: document.getElementById('numero').value,
+                mensagem: document.getElementById('mensagem').value
+            };
+            
+            if (!data.instance_id || !data.numero || !data.mensagem) {
+                return alert('Preencha todos os campos');
+            }
+            
+            try {
+                await axios.post(`${baseURL}mensagens/enviar/`, data, {
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                });
+                
+                alert('Mensagem enviada com sucesso!');
+                document.getElementById('mensagem').value = '';
+                
+            } catch (error) {
+                alert('Erro ao enviar mensagem');
+            }
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Carregar instâncias ao iniciar
+        carregarInstancias();
+    </script>
+</body>
+</html>

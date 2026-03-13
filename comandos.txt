@@ -1,0 +1,13 @@
+python3 -m venv venv --prompt="core" --upgrade-deps
+
+Instale o plugin Pytest :
+
+pip install pytest-playwright
+
+Instale os navegadores necessários:
+
+playwright install
+
+
+Se o container ficar reiniciando, rode:
+docker-compose logs evolution-api
